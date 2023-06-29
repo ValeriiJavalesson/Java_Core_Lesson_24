@@ -48,6 +48,9 @@ public class Time {
 
     @Override
     public String toString() {
-        return this.getHour() + ":" + this.getMin();
+        String min = "0";
+        if (this.getMin()<10) min+=this.getMin();
+        else min = String.valueOf(this.getMin());
+        return this.getHour() + ":" + min;
     }
 }

@@ -2,7 +2,7 @@ import java.util.*;
 
 public class Cinema {
     private TreeMap<Days, Schedule> schedules = new TreeMap<>();
-    private List<Movie> moviesLibrary;
+    private static List<Movie> moviesLibrary;
     private Time openTime;
     private Time closeTime;
 
@@ -14,7 +14,7 @@ public class Cinema {
         for (Days d : days) {
             schedules.put(d, new Schedule());
         }
-        System.out.println("Кінотеатр працює з " + openTime + " до "+ closeTime);
+        System.out.println("Кінотеатр працює з " + openTime + " до " + closeTime);
     }
 
     public Time getOpenTime() {
@@ -31,7 +31,8 @@ public class Cinema {
 
     void removeMovie(Movie movie) {
         moviesLibrary.removeIf(m -> m.equals(movie));
-        schedules.values().forEach(schedule -> schedule.getSeances().removeIf(seance -> seance.getMovie().equals(movie)));
+        schedules.values()
+                .forEach(schedule -> schedule.getSeances().removeIf(seance -> seance.getMovie().equals(movie)));
     }
 
     public List<Movie> getMoviesLibrary() {
@@ -42,16 +43,29 @@ public class Cinema {
         return schedules;
     }
 
-    void addSeance(Seance seance, String day) throws WrongTimeException {
-        try {
-            if (Time.toInt(seance.getStartTime()) < Time.toInt(openTime) || Time.toInt(seance.getEndTime()) > Time.toInt(closeTime))
-                throw new WrongTimeException("Час сеансу не співпадає з часом роботи кінотеатру!");
-        } catch (WrongTimeException e) {
-            System.err.println(e.getMessage());
-        }
+    public void addSeance(Seance seance, String day) throws WrongTimeException {
+
+        if (Time.toInt(seance.getStartTime()) < Time.toInt(openTime) ||
+                Time.toInt(seance.getEndTime()) > Time.toInt(closeTime))
+            throw new WrongTimeException("Час сеансу не співпадає з часом роботи кінотеатру!");
+
         Days d = Days.convertStringtoDay(day);
-        Schedule sch = schedules.get(d);
-        sch.addSeance(seance);
+        Schedule schedule = schedules.get(d);
+        if (schedule.getSeances().isEmpty()) {
+            schedule.addSeance(seance);
+            System.out.println("Успішно!");
+        } else {
+            if (schedule.getSeances().stream().anyMatch(seance1 -> {
+                int fromTime = Time.toInt(seance1.getStartTime());
+                int toTime = Time.toInt(seance1.getEndTime());
+                return (fromTime <= Time.toInt(seance.getStartTime()) && toTime >= Time.toInt(seance.getStartTime()))
+                        || (fromTime <= Time.toInt(seance.getEndTime()) && toTime >= Time.toInt(seance.getEndTime()));
+            })) System.out.println("Час сеансу пересікається з уже існуючим, сеанс не буде додано!");
+            else {
+                schedule.addSeance(seance);
+                System.out.println("Успішно!");
+            }
+        }
     }
 
     void removeSeance(Seance seance, String day) {
@@ -71,10 +85,21 @@ public class Cinema {
         }
     }
 
+    public static boolean isMoviePresent(String title) {
+        return moviesLibrary.stream().anyMatch(m -> m.getTitle().equalsIgnoreCase(title));
+    }
+
+    public static Movie stringToMovie(String title) {
+        for (Movie m : moviesLibrary) {
+            if (m.getTitle().equalsIgnoreCase(title)) {
+                return m;
+            }
+        }
+        return null;
+    }
+
     @Override
     public String toString() {
         return "Кінотеатр";
     }
-
-
 }

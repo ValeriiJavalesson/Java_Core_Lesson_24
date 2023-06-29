@@ -41,6 +41,6 @@ public class Movie {
 
     @Override
     public String toString() {
-        return "Назва фільму: " + title + "(" + duration.getHour() + ":" + duration.getMin() + ")";
+        return "Назва фільму: " + title + "(" + duration + ")";
     }
 }

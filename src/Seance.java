@@ -9,7 +9,7 @@ public class Seance implements Comparable<Seance> {
     Seance(Movie movie, Time startTime) throws WrongTimeException {
         this.movie = movie;
         this.startTime = startTime;
-        this.endTime = Time.toTime(Time.toInt(startTime) + Time.toInt(movie.getDuration()));
+        this.endTime = Time.timeSumm(startTime, movie.getDuration());
     }
 
     public Movie getMovie() {

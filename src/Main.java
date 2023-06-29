@@ -1,7 +1,5 @@
 import java.util.Comparator;
-import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) throws WrongTimeException {
@@ -15,15 +13,17 @@ public class Main {
         cinema.addMovie(new Movie("Six another day", new Time(1, 48)));
         cinema.addMovie(new Movie("Seven another day", new Time(2, 31)));
 
-        cinema.addSeance(new Seance(cinema.getMoviesLibrary().get(3), new Time(11, 30)), "Monday");
-        cinema.addSeance(new Seance(cinema.getMoviesLibrary().get(2), new Time(21, 22)), "Monday");
+        cinema.addSeance(new Seance(cinema.getMoviesLibrary().get(0), new Time(17, 30)), "Monday");
+        cinema.addSeance(new Seance(cinema.getMoviesLibrary().get(2), new Time(13, 22)), "Monday");
         cinema.addSeance(new Seance(cinema.getMoviesLibrary().get(1), new Time(9, 0)), "Monday");
-        cinema.addSeance(new Seance(cinema.getMoviesLibrary().get(1), new Time(9, 0)), "Tuesday");
-        cinema.addSeance(new Seance(cinema.getMoviesLibrary().get(2), new Time(10, 50)), "Tuesday");
-        cinema.addSeance(new Seance(cinema.getMoviesLibrary().get(3), new Time(9, 0)), "Wednesday");
-        cinema.addSeance(new Seance(cinema.getMoviesLibrary().get(4), new Time(11, 30)), "Wednesday");
+        cinema.addSeance(new Seance(cinema.getMoviesLibrary().get(5), new Time(9, 0)), "Tuesday");
+        cinema.addSeance(new Seance(cinema.getMoviesLibrary().get(3), new Time(12, 50)), "Tuesday");
+        cinema.addSeance(new Seance(cinema.getMoviesLibrary().get(6), new Time(9, 0)), "Wednesday");
+        cinema.addSeance(new Seance(cinema.getMoviesLibrary().get(4), new Time(13, 30)), "Wednesday");
 
         Scanner scanner = new Scanner(System.in);
+
+        System.out.println(cinema.getMoviesLibrary().get(1));
 
         while (true) {
             menu();
@@ -35,15 +35,16 @@ public class Main {
                 }
                 case "1" -> {
                     System.out.println("Список всих фільмів:");
-                    System.out.printf("%-21s %s \n", "Назва фільму", "Тривалість");
-                    System.out.printf("%-21s %s \n", "--------------------", "----------");
-                    cinema.getMoviesLibrary().forEach(m -> System.out.printf("%-20s  %d:%d \n", m.getTitle(), m.getDuration().getHour(), m.getDuration().getMin()));
+                    System.out.printf("%-31s %s \n", "Назва фільму", "Тривалість");
+                    System.out.printf("%-31s %s \n", "--------------------", "----------");
+                    cinema.getMoviesLibrary()
+                            .forEach(m -> System.out.printf("%-30s  %s \n", m.getTitle(), m.getDuration()));
                 }
                 case "2" -> {
                     System.out.println("Введіть назву фільму, який потрібно додати:");
                     String title = scanner.next();
                     title += scanner.nextLine();
-                    if (isMoviePresent(title, cinema.getMoviesLibrary())) {
+                    if (Cinema.isMoviePresent(title)) {
                         System.out.println("Такий фільм вже існує!");
                         break;
                     }
@@ -55,15 +56,16 @@ public class Main {
                         System.out.println("Фільм " + title + " додано!");
                     } catch (WrongTimeException e) {
                         System.err.println(e.getMessage());
+                    }catch (Exception e){
+                        System.err.println("Невірний ввід!");
                     }
                 }
                 case "3" -> {
                     System.out.println("Введіть назву фільму, який потрібно видалити:");
                     String title = scanner.next();
                     title += scanner.nextLine();
-                    List<Movie> list = cinema.getMoviesLibrary();
-                    if (isMoviePresent(title, list)) {
-                        Movie m = stringToMovie(title, list);
+                    if (Cinema.isMoviePresent(title)) {
+                        Movie m = Cinema.stringToMovie(title);
                         cinema.removeMovie(m);
                         assert m != null;
                         System.out.println("Фільм " + m.getTitle() + " видалено!");
@@ -86,8 +88,8 @@ public class Main {
                         int lastMovieEndTime = Time.toInt(max.getEndTime());
                         if (Time.toInt(cinema.getCloseTime()) - lastMovieEndTime <= 15) {
                             System.out.println("Цього дня сеансів краще не планувати, "
-                                    + "оскільки до закриття кінотеатру лишилося " + (Time.toInt(cinema.getCloseTime()) - lastMovieEndTime) + "хв");
-//                            break;
+                                    + "оскільки до закриття кінотеатру лишилося "
+                                    + (Time.toInt(cinema.getCloseTime()) - lastMovieEndTime) + "хв");
                         } else {
                             lastMovieEndTime += 15;
                             while (lastMovieEndTime % 5 != 0) lastMovieEndTime++;
@@ -98,27 +100,28 @@ public class Main {
                     System.out.println("Введіть назву фільму:");
                     String title = scanner.next();
                     title += scanner.nextLine();
-                    List<Movie> list = cinema.getMoviesLibrary();
-                    if (!isMoviePresent(title, list)) {
+                    if (!Cinema.isMoviePresent(title)) {
                         System.out.println("Такого фільму немає в бібліотеці!");
                         break;
                     }
                     System.out.println("Введіть час початку сеансу в форматі ГГ:ХХ");
-                    String[] split = scanner.next().split(":");
-
+                    String stringTime = scanner.next();
+                    stringTime += scanner.nextLine();
+                    String[] split = stringTime.split(":");
                     try {
                         Time time = new Time(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
-                        Movie m = stringToMovie(title, list);
+                        Movie m = Cinema.stringToMovie(title);
                         assert m != null;
                         if (Time.toInt(cinema.getCloseTime()) < Time.toInt(Time.timeSumm(time, m.getDuration()))) {
-                            System.out.println("Сеанс не буде заплановано, оскільки час закриття кінотеатру раніше, ніж час"
-                                    + " закінчення сеансу.");
+                            System.out.println("Сеанс не буде заплановано, оскільки час закриття кінотеатру раніше,"
+                                    + " ніж час закінчення сеансу.");
                             break;
                         }
                         cinema.addSeance(new Seance(m, time), dayOfWeek);
-                        System.out.println("Успішно!");
                     } catch (WrongTimeException e) {
                         System.err.println(e.getMessage());
+                    } catch (Exception e) {
+                        System.err.println("Невірний ввід!");
                     }
                 }
                 case "5" -> {
@@ -143,7 +146,7 @@ public class Main {
                     System.out.println("Введіть назву фільму, який потрібно видалити в цей день:");
                     String title = scanner.next();
                     title += scanner.nextLine();
-                    if (isMoviePresent(title, cinema.getMoviesLibrary())) {
+                    if (Cinema.isMoviePresent(title)) {
                         String finalTitle = title;
                         cinema.getSchedules()
                                 .get(Days.convertStringtoDay(dayOfWeek))
@@ -167,16 +170,7 @@ public class Main {
         System.out.println("Введіть 6, щоб видалити сеанс в конкретний день");
     }
 
-    private static boolean isMoviePresent(String title, List<Movie> library) {
-        return library.stream().anyMatch(m -> m.getTitle().equalsIgnoreCase(title));
-    }
 
-    private static Movie stringToMovie(String title, List<Movie> library) {
-        for (Movie m : library) {
-            if (m.getTitle().equalsIgnoreCase(title)) {
-                return m;
-            }
-        }
-        return null;
-    }
+
+
 }

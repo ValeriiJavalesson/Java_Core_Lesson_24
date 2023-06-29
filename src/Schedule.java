@@ -15,8 +15,12 @@ public class Schedule {
             if (s.equals(seance)) seances.remove(s);
         }
     }
-
     public Set<Seance> getSeances() {
         return seances;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Кількість сеансів: %d", seances.size());
     }
 }

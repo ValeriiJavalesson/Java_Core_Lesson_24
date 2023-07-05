@@ -3,7 +3,7 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws WrongTimeException {
-        Cinema cinema = new Cinema(new Time(9, 0), new Time(23, 0));
+        Cinema cinema = new Cinema("Фенікс", new Time(9, 0), new Time(23, 0));
 
         cinema.addMovie(new Movie("One another day", new Time(1, 55)));
         cinema.addMovie(new Movie("Two another day", new Time(2, 3)));

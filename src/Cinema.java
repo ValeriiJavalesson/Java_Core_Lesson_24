@@ -1,12 +1,14 @@
 import java.util.*;
 
 public class Cinema {
+    String name;
     private TreeMap<Days, Schedule> schedules = new TreeMap<>();
     private static List<Movie> moviesLibrary;
     private Time openTime;
     private Time closeTime;
 
-    Cinema(Time openTime, Time closeTime) {
+    Cinema(String name, Time openTime, Time closeTime) {
+        this.name = name;
         this.openTime = openTime;
         this.closeTime = closeTime;
         moviesLibrary = new ArrayList<>();
@@ -14,7 +16,15 @@ public class Cinema {
         for (Days d : days) {
             schedules.put(d, new Schedule());
         }
-        System.out.println("Кінотеатр працює з " + openTime + " до " + closeTime);
+        System.out.println("Кінотеатр «"+ name +"» працює з " + openTime + " до " + closeTime);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Time getOpenTime() {
@@ -100,6 +110,6 @@ public class Cinema {
 
     @Override
     public String toString() {
-        return "Кінотеатр";
+        return "Кінотеатр :" + name;
     }
 }
